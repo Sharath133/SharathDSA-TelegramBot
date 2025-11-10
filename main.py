@@ -6,6 +6,9 @@ import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from datetime import datetime
+import threading
+import http.server
+import socketserver
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -59,5 +62,13 @@ def main():
     logger.info("Bot running (v21 API)")
     app.run_polling()
 
+def keepalive_server():
+    PORT = 8080
+    Handler = http.server.SimpleHTTPRequestHandler
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+        print(f"Keepalive server running on port {PORT}")
+        httpd.serve_forever()
+
+threading.Thread(target=keepalive_server, daemon=True).start()
 if __name__ == "__main__":
     main()
